@@ -1,333 +1,767 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خدمة رفع الملفات</title>
+    <title>متجر حسابات روبلوكس - Roblox Accounts Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #333;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f5f5;
         }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 700px;
-            box-sizing: border-box;
+        
+        .account-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            color: #007bff;
-            margin-bottom: 25px;
-            font-size: 2.2em;
-            font-weight: 600;
+        
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
-        .upload-section {
-            border: 3px dashed #007bff;
-            border-radius: 10px;
-            padding: 40px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            margin-bottom: 30px;
+        
+        .robux-badge {
+            background: linear-gradient(135deg, #00a2ff, #0066ff);
         }
-        .upload-section:hover {
-            background-color: #e9f5ff;
-            border-color: #0056b3;
+        
+        .payment-method {
+            transition: all 0.2s ease;
         }
-        .upload-icon {
-            font-size: 4em;
-            color: #007bff;
-            margin-bottom: 15px;
+        
+        .payment-method:hover {
+            transform: scale(1.05);
         }
-        .upload-text {
-            font-size: 1.4em;
-            font-weight: 500;
-            margin-bottom: 10px;
+        
+        .payment-method.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
         }
-        .upload-subtext {
-            font-size: 0.9em;
-            color: #666;
+        
+        .modal {
+            transition: opacity 0.3s ease;
         }
-        input[type="file"] {
-            display: none;
-        }
-        .file-list {
-            text-align: left;
-            margin-top: 30px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-info {
-            flex-grow: 1;
-            margin-right: 15px;
-        }
-        .file-name {
-            font-weight: 500;
-            color: #333;
-            word-break: break-all;
-        }
-        .file-size, .file-type {
-            font-size: 0.85em;
-            color: #777;
-        }
-        .copy-button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease;
-        }
-        .copy-button:hover {
-            background-color: #218838;
-        }
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 10px;
-            overflow: hidden;
-            height: 8px;
-            display: none; /* Hidden by default */
-        }
+        
         .progress-bar {
-            height: 100%;
-            width: 0%;
-            background-color: #007bff;
-            border-radius: 5px;
-            text-align: center;
-            color: white;
-            transition: width 0.1s ease;
+            animation: progress 2s ease-in-out forwards;
         }
-        .message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 1em;
-            display: none;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            h1 {
-                font-size: 1.8em;
-            }
-            .upload-icon {
-                font-size: 3em;
-            }
-            .upload-text {
-                font-size: 1.2em;
-            }
-            .file-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .copy-button {
-                margin-top: 10px;
-                width: 100%;
-            }
+        
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>ارفع ملفاتك هنا</h1>
-        
-        <div class="upload-section" onclick="document.getElementById(\'fileInput\').click()">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">اضغط هنا لاختيار الملفات أو اسحبها إلى هنا</div>
-            <div class="upload-subtext">يمكنك رفع عدة ملفات في نفس الوقت - الحد الأقصى 500 ميجابايت لكل ملف</div>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-cube text-3xl"></i>
+                    <h1 class="text-2xl font-bold">متجر حسابات روبلوكس</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-shopping-cart text-xl cursor-pointer"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">0</span>
+                    </div>
+                    <button class="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition">
+                        تسجيل الدخول
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <input type="file" id="fileInput" multiple>
+    </header>
 
-        <div class="progress-bar-container" id="progressBarContainer">
-            <div class="progress-bar" id="progressBar"></div>
+    <!-- Games Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8">الألعاب المتاحة</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Game 1 -->
+                <div class="game-card bg-white rounded-xl overflow-hidden shadow-md cursor-pointer transition hover:shadow-lg" data-game="adopt-me">
+                    <img src="https://via.placeholder.com/300x200/00a2ff/ffffff?text=Adopt+Me" alt="Adopt Me" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-center">Adopt Me</h3>
+                    </div>
+                </div>
+                
+                <!-- Game 2 -->
+                <div class="game-card bg-white rounded-xl overflow-hidden shadow-md cursor-pointer transition hover:shadow-lg" data-game="brookhaven">
+                    <img src="https://via.placeholder.com/300x200/0066ff/ffffff?text=Brookhaven" alt="Brookhaven" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-center">Brookhaven</h3>
+                    </div>
+                </div>
+                
+                <!-- Game 3 -->
+                <div class="game-card bg-white rounded-xl overflow-hidden shadow-md cursor-pointer transition hover:shadow-lg" data-game="blox-fruits">
+                    <img src="https://via.placeholder.com/300x200/3b82f6/ffffff?text=Blox+Fruits" alt="Blox Fruits" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-center">Blox Fruits</h3>
+                    </div>
+                </div>
+                
+                <!-- Game 4 -->
+                <div class="game-card bg-white rounded-xl overflow-hidden shadow-md cursor-pointer transition hover:shadow-lg" data-game="royale-high">
+                    <img src="https://via.placeholder.com/300x200/8b5cf6/ffffff?text=Royal+High" alt="Royal High" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-center">Royal High</h3>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="message" id="messageBox"></div>
-
-        <div class="file-list" id="fileList">
-            <!-- File items will be appended here -->
+    <!-- Game Accounts Modal -->
+    <div id="game-accounts-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold" id="game-modal-title">حسابات اللعبة</h3>
+                    <button id="close-game-accounts" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="game-accounts-container">
+                    <!-- Accounts will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        const fileInput = document.getElementById(\'fileInput\');
-        const uploadArea = document.querySelector(\'.upload-section\');
-        const fileList = document.getElementById(\'fileList\');
-        const progressBarContainer = document.getElementById(\'progressBarContainer\');
-        const progressBar = document.getElementById(\'progressBar\');
-        const messageBox = document.getElementById(\'messageBox\');
-
-        // Handle drag and drop
-        uploadArea.addEventListener(\'dragover\', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = \'#0056b3\';
-            uploadArea.style.backgroundColor = \'#e9f5ff\';
-        });
-
-        uploadArea.addEventListener(\'dragleave\', () => {
-            uploadArea.style.borderColor = \'#007bff\';
-            uploadArea.style.backgroundColor = \'#fff\';
-        });
-
-        uploadArea.addEventListener(\'drop\', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = \'#007bff\';
-            uploadArea.style.backgroundColor = \'#fff\';
-            fileInput.files = e.dataTransfer.files;
-            handleFiles(fileInput.files);
-        });
-
-        // Handle file input change
-        fileInput.addEventListener(\'change\', (e) => {
-            handleFiles(e.target.files);
-        });
-
-        function showMessage(msg, type) {
-            messageBox.textContent = msg;
-            messageBox.className = `message ${type}`;
-            messageBox.style.display = \'block\';
-            setTimeout(() => {
-                messageBox.style.display = \'none\';
-            }, 5000); // Hide after 5 seconds
-        }
-
-        async function handleFiles(files) {
-            if (files.length === 0) {
-                return;
-            }
-
-            progressBarContainer.style.display = \'block\';
-            progressBar.style.width = \'0%\';
-            fileList.innerHTML = \'\'; // Clear previous list
-
-            const formData = new FormData();
-            for (let i = 0; i < files.length; i++) {
-                formData.append(\'files\', files[i]);
-            }
-
-            try {
-                const response = await fetch(\'/api/upload\', {
-                    method: \'POST\',
-                    body: formData,
-                    // Report upload progress
-                    onUploadProgress: (progressEvent) => {
-                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        progressBar.style.width = `${percentCompleted}%`;
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || \'فشل رفع الملفات\');
-                }
-
-                const data = await response.json();
-                showMessage(data.message, \'success\');
-                data.files.forEach(file => {
-                    addFileToList(file);
-                });
-            } catch (error) {
-                console.error(\'Error uploading files:\', error);
-                showMessage(error.message || \'حدث خطأ أثناء الرفع\', \'error\');
-            } finally {
-                progressBarContainer.style.display = \'none\';
-                progressBar.style.width = \'0%\';
-            }
-        }
-
-        function addFileToList(file) {
-            const fileItem = document.createElement(\'div\');
-            fileItem.className = \'file-item\';
-            fileItem.innerHTML = `
-                <div class="file-info">
-                    <div class="file-name">${file.original_name}</div>
-                    <div class="file-size">${formatBytes(file.size)}</div>
-                    <div class="file-type">${file.mime_type || \'غير معروف\'}</div>
+    <!-- Accounts Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">الحسابات المتاحة</h2>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">فرز حسب السعر</button>
+                    <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">فرز حسب الروبوكس</button>
                 </div>
-                <button class="copy-button" data-link="${file.full_url}">نسخ الرابط</button>
-            `;
-            fileList.appendChild(fileItem);
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Account 1 -->
+                <div class="account-card bg-white rounded-xl overflow-hidden">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x200/3b82f6/ffffff?text=Roblox+Account" alt="Roblox Account" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-yellow-400 text-black px-2 py-1 rounded text-sm font-bold">الأكثر مبيعاً</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold">حساب VIP</h3>
+                            <span class="robux-badge text-white px-3 py-1 rounded-full text-sm font-bold">10,000 روبوكس</span>
+                        </div>
+                        <ul class="space-y-2 mb-6 text-gray-700">
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>مستوى 50+</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>5 ألعاب مميزة</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>حساب مؤكد</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>ضمان استرجاع 7 أيام</span>
+                            </li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">75 ر.س</span>
+                            <button class="add-to-cart bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition" data-id="1" data-name="حساب VIP" data-price="75" data-robux="10000">
+                                أضف للسلة <i class="fas fa-cart-plus ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account 2 -->
+                <div class="account-card bg-white rounded-xl overflow-hidden">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x200/00a2ff/ffffff?text=Roblox+Account" alt="Roblox Account" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-bold">جديد</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold">حساب بريميوم</h3>
+                            <span class="robux-badge text-white px-3 py-1 rounded-full text-sm font-bold">25,000 روبوكس</span>
+                        </div>
+                        <ul class="space-y-2 mb-6 text-gray-700">
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>مستوى 100+</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>10 ألعاب مميزة</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>حساب مؤكد</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>ضمان استرجاع 14 يوم</span>
+                            </li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">120 ر.س</span>
+                            <button class="add-to-cart bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition" data-id="2" data-name="حساب بريميوم" data-price="120" data-robux="25000">
+                                أضف للسلة <i class="fas fa-cart-plus ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account 3 -->
+                <div class="account-card bg-white rounded-xl overflow-hidden">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x200/0066ff/ffffff?text=Roblox+Account" alt="Roblox Account" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">عرض محدود</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold">حساب محترف</h3>
+                            <span class="robux-badge text-white px-3 py-1 rounded-full text-sm font-bold">50,000 روبوكس</span>
+                        </div>
+                        <ul class="space-y-2 mb-6 text-gray-700">
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>مستوى 200+</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>20 لعبة مميزة</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>حساب مؤكد</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>ضمان استرجاع 30 يوم</span>
+                            </li>
+                        </ul>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">200 ر.س</span>
+                            <button class="add-to-cart bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition" data-id="3" data-name="حساب محترف" data-price="200" data-robux="50000">
+                                أضف للسلة <i class="fas fa-cart-plus ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            fileItem.querySelector(\'.copy-button\').addEventListener(\'click\', (e) => {
-                const link = e.target.dataset.link;
-                navigator.clipboard.writeText(link).then(() => {
-                    e.target.textContent = \'تم النسخ!\';
-                    setTimeout(() => {
-                        e.target.textContent = \'نسخ الرابط\';
-                    }, 2000);
-                }).catch(err => {
-                    console.error(\'Failed to copy: \', err);
-                    alert(\'فشل النسخ، يرجى النسخ يدوياً: \' + link);
-                });
-            });
-        }
+    <!-- Features Section -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">لماذا تشتري من متجرنا؟</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-blue-500 text-4xl mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">حماية وأمان</h3>
+                    <p class="text-gray-600">جميع حساباتنا آمنة ومضمونة مع ضمان استرجاع المال في حالة وجود أي مشكلة</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-blue-500 text-4xl mb-4">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">تسليم فوري</h3>
+                    <p class="text-gray-600">استلم حسابك فوراً بعد إتمام عملية الدفع مع إرسال التفاصيل على بريدك الإلكتروني</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <div class="text-blue-500 text-4xl mb-4">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">دعم فني 24/7</h3>
+                    <p class="text-gray-600">فريق دعم فني متاح على مدار الساعة لمساعدتك في أي استفسار أو مشكلة تواجهك</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return \'0 Bytes\';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = [\'Bytes\', \'KB\', \'MB\', \'GB\', \'TB\'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + \' \' + sizes[i];
-        }
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">سلة التسوق</h3>
+                    <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <div id="cart-items" class="mb-6 space-y-4">
+                    <!-- Cart items will be added here dynamically -->
+                    <div class="text-center py-8 text-gray-500" id="empty-cart-message">
+                        <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                        <p>سلة التسوق فارغة</p>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between mb-4">
+                        <span class="font-bold">المجموع:</span>
+                        <span id="cart-total" class="font-bold text-blue-600">0 ر.س</span>
+                    </div>
+                    
+                    <button id="checkout-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition disabled:opacity-50" disabled>
+                        اتمام الشراء <i class="fas fa-arrow-left ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Polyfill for onUploadProgress (if not natively supported by fetch)
-        // This is a simplified example and might not work in all browsers/environments
-        // For robust progress tracking, consider using XMLHttpRequest or a library like Axios
-        if (!(\'onUploadProgress\' in new Request(\'\'))) {
-            const originalFetch = window.fetch;
-            window.fetch = function (input, init) {
-                if (init && init.onUploadProgress && init.body instanceof FormData) {
-                    return new Promise((resolve, reject) => {
-                        const xhr = new XMLHttpRequest();
-                        xhr.open(init.method || \'GET\', input);
-                        for (let header in init.headers) {
-                            xhr.setRequestHeader(header, init.headers[header]);
-                        }
-                        xhr.upload.onprogress = init.onUploadProgress;
-                        xhr.onload = () => resolve(new Response(xhr.responseText, { status: xhr.status }));
-                        xhr.onerror = () => reject(new TypeError(\'Network request failed\'));
-                        xhr.send(init.body);
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-2xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">اختر طريقة الدفع</h3>
+                    <button id="close-payment" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="payment-method border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer" data-method="visa">
+                        <i class="fab fa-cc-visa text-4xl text-blue-600 mb-2"></i>
+                        <p>فيزا / ماستركارد</p>
+                    </div>
+                    
+                    <div class="payment-method border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer" data-method="mada">
+                        <i class="fas fa-credit-card text-4xl text-green-600 mb-2"></i>
+                        <p>مدى</p>
+                    </div>
+                    
+                    <div class="payment-method border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer" data-method="applepay">
+                        <i class="fab fa-apple-pay text-4xl text-black mb-2"></i>
+                        <p>آبل باي</p>
+                    </div>
+                    
+                    <div class="payment-method border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer" data-method="stcpay">
+                        <i class="fas fa-mobile-alt text-4xl text-purple-600 mb-2"></i>
+                        <p>STC Pay</p>
+                    </div>
+                </div>
+                
+                <div id="payment-form" class="hidden">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">رقم البطاقة</label>
+                        <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="1234 5678 9012 3456">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">تاريخ الانتهاء</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="MM/YY">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">CVV</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="123">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">اسم حامل البطاقة</label>
+                        <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="كما هو مدون على البطاقة">
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between mb-4">
+                        <span class="font-bold">المجموع:</span>
+                        <span id="payment-total" class="font-bold text-blue-600">0 ر.س</span>
+                    </div>
+                    
+                    <button id="confirm-payment" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition">
+                        تأكيد الدفع <i class="fas fa-lock ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-md text-center p-8">
+            <div class="text-green-500 text-6xl mb-6">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">تمت عملية الدفع بنجاح!</h3>
+            <p class="text-gray-700 mb-6">سيتم إرسال تفاصيل الحساب إلى بريدك الإلكتروني خلال دقائق. يمكنك أيضاً الاطلاع على التفاصيل في صفحة الطلبات.</p>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                <div class="progress-bar bg-green-600 h-2.5 rounded-full"></div>
+            </div>
+            
+            <button id="close-success" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                حسناً <i class="fas fa-check ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">متجر حسابات روبلوكس</h4>
+                    <p class="text-gray-400">أفضل متجر لبيع حسابات روبلوكس بأسعار تنافسية وضمان كامل.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4">روابط سريعة</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">الصفحة الرئيسية</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">جميع الحسابات</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">كيفية الشراء</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">الشروط والأحكام</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4">الدعم الفني</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">تواصل معنا</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">الأسئلة الشائعة</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">سياسة الاسترجاع</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4">تواصل معنا</h4>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                    <p class="text-gray-400">
+                        <i class="fas fa-envelope mr-2"></i> info@roblox-store.com
+                    </p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2023 متجر حسابات روبلوكس. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Game Data
+        const gamesData = {
+            'adopt-me': [
+                {
+                    id: 'a1',
+                    name: 'حساب Adopt Me VIP',
+                    price: 80,
+                    robux: '15,000',
+                    features: ['مستوى 50+', '5 حيوانات نادرة', 'منزل فاخر', 'ضمان 7 أيام'],
+                    image: 'https://via.placeholder.com/400x200/00a2ff/ffffff?text=Adopt+Me+VIP'
+                },
+                {
+                    id: 'a2',
+                    name: 'حساب Adopt Me بريميوم',
+                    price: 150,
+                    robux: '30,000',
+                    features: ['مستوى 100+', '10 حيوانات نادرة', 'منزل فاخر', 'ضمان 14 يوم'],
+                    image: 'https://via.placeholder.com/400x200/0066ff/ffffff?text=Adopt+Me+Premium'
+                }
+            ],
+            'brookhaven': [
+                {
+                    id: 'b1',
+                    name: 'حساب Brookhaven VIP',
+                    price: 70,
+                    robux: '10,000',
+                    features: ['منزل كبير', '5 سيارات', 'ملابس حصرية', 'ضمان 7 أيام'],
+                    image: 'https://via.placeholder.com/400x200/3b82f6/ffffff?text=Brookhaven+VIP'
+                },
+                {
+                    id: 'b2',
+                    name: 'حساب Brookhaven محترف',
+                    price: 120,
+                    robux: '25,000',
+                    features: ['فيلا فاخرة', '10 سيارات', 'ملابس حصرية', 'ضمان 14 يوم'],
+                    image: 'https://via.placeholder.com/400x200/8b5cf6/ffffff?text=Brookhaven+Pro'
+                }
+            ]
+        };
+
+        // Game Cards Click Handler
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const game = card.getAttribute('data-game');
+                const gameAccounts = gamesData[game] || [];
+                
+                document.getElementById('game-modal-title').textContent = `حسابات ${card.querySelector('h3').textContent}`;
+                const container = document.getElementById('game-accounts-container');
+                container.innerHTML = '';
+                
+                if (gameAccounts.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center col-span-3">لا توجد حسابات متاحة حالياً</p>';
+                } else {
+                    gameAccounts.forEach(account => {
+                        const accountCard = document.createElement('div');
+                        accountCard.className = 'account-card bg-white rounded-xl overflow-hidden';
+                        accountCard.innerHTML = `
+                            <div class="relative">
+                                <img src="${account.image}" alt="${account.name}" class="w-full h-48 object-cover">
+                            </div>
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-bold">${account.name}</h3>
+                                    <span class="robux-badge text-white px-3 py-1 rounded-full text-sm font-bold">${account.robux} روبوكس</span>
+                                </div>
+                                <ul class="space-y-2 mb-6 text-gray-700">
+                                    ${account.features.map(feature => `
+                                        <li class="flex items-center">
+                                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                            <span>${feature}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-blue-600">${account.price} ر.س</span>
+                                    <button class="add-to-cart bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition" 
+                                        data-id="${account.id}" 
+                                        data-name="${account.name}" 
+                                        data-price="${account.price}" 
+                                        data-robux="${account.robux}">
+                                        أضف للسلة <i class="fas fa-cart-plus ml-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(accountCard);
+                    });
+                    
+                    // Re-attach add to cart event listeners
+                    document.querySelectorAll('.add-to-cart').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const id = button.getAttribute('data-id');
+                            const name = button.getAttribute('data-name');
+                            const price = parseFloat(button.getAttribute('data-price'));
+                            const robux = button.getAttribute('data-robux');
+                            
+                            const existingItem = cart.find(item => item.id === id);
+                            
+                            if (existingItem) {
+                                existingItem.quantity += 1;
+                            } else {
+                                cart.push({
+                                    id,
+                                    name,
+                                    price,
+                                    robux,
+                                    quantity: 1
+                                });
+                            }
+                            
+                            updateCart();
+                            document.getElementById('cart-modal').classList.remove('hidden');
+                        });
                     });
                 }
-                return originalFetch(input, init);
-            };
+                
+                document.getElementById('game-accounts-modal').classList.remove('hidden');
+            });
+        });
+        
+        // Close game accounts modal
+        document.getElementById('close-game-accounts').addEventListener('click', () => {
+            document.getElementById('game-accounts-modal').classList.add('hidden');
+        });
+
+        // Shopping Cart Functionality
+        let cart = [];
+        
+        // Add to cart buttons
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const price = parseFloat(button.getAttribute('data-price'));
+                const robux = button.getAttribute('data-robux');
+                
+                // Check if item already in cart
+                const existingItem = cart.find(item => item.id === id);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        id,
+                        name,
+                        price,
+                        robux,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+                
+                // Show cart modal
+                document.getElementById('cart-modal').classList.remove('hidden');
+            });
+        });
+        
+        // Update cart function
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            const cartCount = document.getElementById('cart-count');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            let total = 0;
+            
+            // Clear cart items
+            cartItems.innerHTML = '';
+            
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+                checkoutBtn.disabled = true;
+                cartCount.textContent = '0';
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                checkoutBtn.disabled = false;
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex justify-between items-center border-b border-gray-200 pb-4';
+                    itemElement.innerHTML = `
+                        <div>
+                            <h4 class="font-medium">${item.name}</h4>
+                            <p class="text-sm text-gray-500">${item.robux} روبوكس</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <button class="decrease-quantity text-gray-500 hover:text-blue-600" data-id="${item.id}">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="quantity">${item.quantity}</span>
+                                <button class="increase-quantity text-gray-500 hover:text-blue-600" data-id="${item.id}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <span class="font-medium">${itemTotal} ر.س</span>
+                            <button class="remove-item text-red-500 hover:text-red-700" data-id="${item.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    cartItems.appendChild(itemElement);
+                });
+                
+                // Update cart count and total
+                cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+                document.getElementById('cart-total').textContent = `${total} ر.س`;
+                document.getElementById('payment-total').textContent = `${total} ر.س`;
+                
+                // Add event listeners to quantity buttons
+                document.querySelectorAll('.decrease-quantity').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.getAttribute('data-id');
+                        const item = cart.find(item => item.id === id);
+                        
+                        if (item.quantity > 1) {
+                            item.quantity -= 1;
+                            updateCart();
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.increase-quantity').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.getAttribute('data-id');
+                        const item = cart.find(item => item.id === id);
+                        
+                        item.quantity += 1;
+                        updateCart();
+                    });
+                });
+                
+                document.querySelectorAll('.remove-item').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.getAttribute('data-id');
+                        cart = cart.filter(item => item.id !== id);
+                        updateCart();
+                    });
+                });
+            }
         }
+        
+        // Cart modal
+        document.getElementById('close-cart').addEventListener('click', () => {
+            document.getElementById('cart-modal').classList.add('hidden');
+        });
+        
+        // Checkout button
+        document.getElementById('checkout-btn').addEventListener('click', () => {
+            document.getElementById('cart-modal').classList.add('hidden');
+            document.getElementById('payment-modal').classList.remove('hidden');
+        });
+        
+        // Payment modal
+        document.getElementById('close-payment').addEventListener('click', () => {
+            document.getElementById('payment-modal').classList.add('hidden');
+        });
+        
+        // Payment methods
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                // Remove selected class from all methods
+                document.querySelectorAll('.payment-method').forEach(m => {
+                    m.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked method
+                method.classList.add('selected');
+                
+                // Show payment form
+                document.getElementById('payment-form').classList.remove('hidden');
+            });
+        });
+        
+        // Confirm payment
+        document.getElementById('confirm-payment').addEventListener('click', () => {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('success-modal').classList.remove('hidden');
+            
+            // Clear cart
+            cart = [];
+            updateCart();
+        });
+        
+        // Close success modal
+        document.getElementById('close-success').addEventListener('click', () => {
+            document.getElementById('success-modal').classList.add('hidden');
+        });
     </script>
 </body>
 </html>
